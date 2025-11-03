@@ -12,6 +12,33 @@ jobs:
     # Define permissions for the job
     # Define language to be analyzed
     name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+        security-events: write
+        packages: read
+        actions: read
+        contents: read
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: go
+            build-mode: none
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v3
+          with:
+            languages: ${{ matrix.language }}
+            build-mode: ${{ matrix.build-mode }}
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v3
+          with:
+            category: "/language:${{matrix.language}}"
 
   docker:
     name: Docker Build & Run
@@ -19,3 +46,6 @@ jobs:
     needs: analyze
 
     # Define steps to build and run the Docker container
+    steps:
+        - run: docker build -t go-web-server .
+        - run: docker run -p 8080:8080 -it --rm go-web-server
