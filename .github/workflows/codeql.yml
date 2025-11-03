@@ -47,5 +47,11 @@ jobs:
 
     # Define steps to build and run the Docker container
     steps:
-        - run: docker build -t go-web-server .
-        - run: docker run -p 8080:8080 -it --rm go-web-server
+        - name: Checkout
+          uses: actions/checkout@v5
+        
+        - name: Build Docker image
+          run: docker build -t go-web-server .
+
+        - name: Run container
+          run: docker run -p 8080:8080 -it --rm go-web-server
